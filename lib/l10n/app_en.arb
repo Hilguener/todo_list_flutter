@@ -1,0 +1,74 @@
+{
+  "language": "English",
+  "@language": {
+    "description": "The current language"
+  },
+  "tasks": "Tasks",
+  "@tasks": {
+    "description": "Tasks"
+  },
+  "addNewToDoItem": "Add new todo item",
+  "@addNewToDoItem": {
+    "description": "Add new todo item"
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Search"
+  },
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout"
+  },
+  "welcome": "Welcome",
+  "@welcome": {
+    "description": "Welcome"
+  },
+  "password": "Password",
+  "@password": {
+    "description": "Password"
+  },
+  "confirmPassword": "Confirm password",
+  "@confirmPassword": {
+    "description": "Confirm password"
+  },
+  "dontHaveAccount": "Don't have an account? ",
+  "@dontHaveAccount": {
+    "description": "Don't have an account? "
+  },
+  "alreadyHaveAccount": "Already have an account? ",
+  "@alreadyHaveAccount": {
+    "description": "Already have an account? "
+  },
+  "passwordDoNotMatch": "Password doesn't match",
+  "@passwordDoNotMatch": {
+    "description": "Passwords doesn't match"
+  },
+  "pleaseEnterYourPassword": "Please enter your password",
+  "@pleaseEnterYourPassword": {
+    "description": "Please enter your password"
+  },
+  "pleaseEnterYourEmail": "Please enter your email",
+  "@pleaseEnterYourEmail": {
+    "description": "Please enter your email"
+  },
+  "passwordMustBeAtLeast": "Password must be at least 6 characters long",
+  "@passwordMustBeAtLeast": {
+    "description": "Password must be at least 6 characters long"
+  },
+  "fillTheFields": "Please fill in all the fields.",
+  "@fillTheFields": {
+    "description": "Please fill in all the fields."
+  },
+  "signUp": "Sign Up!",
+  "@signUp": {
+    "description": "Sign Up!"
+  },
+  "signIn": "Sign In!",
+  "@signIn": {
+    "description": "Sign In!"
+  },
+  "createAccount": "Create account",
+  "@createAccount": {
+    "description": "Create account"
+  }
+}

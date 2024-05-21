@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../constants/colors.dart';
+import '../repository/auth_repository.dart';
 import '../widgets/email_text_field.dart';
 import '../widgets/password_text_field.dart';
 import 'home.dart';
@@ -21,9 +22,15 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  List<String> validationErrors = [];
 
-  Future<void> createUserWithEmailAndPassword() async {
-    final BuildContext context = this.context;
+  void clearErrors() {
+    setState(() {
+      validationErrors.clear();
+    });
+  }
+
+  Future<void> createUserWithEmailAndPassword(BuildContext context) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -33,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     try {
-      await Auth().createUserWithEmailAndPassword(
+      await AuthRepository().createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -89,9 +96,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               child: Column(
                                 children: [
                                   const SizedBox(height: 60),
-                                  const Text(
-                                    'Sign up',
-                                    style: TextStyle(
+                                  Text(
+                                    AppLocalizations.of(context)!.createAccount,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 30,
                                     ),
@@ -102,14 +109,25 @@ class _RegisterPageState extends State<RegisterPage> {
                                     child: Column(
                                       children: [
                                         const SizedBox(height: 16.0),
-                                        emailTextField(_emailController),
+                                        emailTextField(context,
+                                            _emailController, clearErrors),
                                         const SizedBox(height: 16.0),
-                                        passwordTextField(
-                                            _passwordController, 'Password'),
+                                        PasswordTextField(
+                                          controller: _passwordController,
+                                          hintText:
+                                              AppLocalizations.of(context)!
+                                                  .password,
+                                          clearErrors: clearErrors,
+                                        ),
                                         const SizedBox(height: 16.0),
-                                        passwordTextField(
-                                            _confirmPasswordController,
-                                            'Confirm password'),
+                                        PasswordTextField(
+                                          controller:
+                                              _confirmPasswordController,
+                                          hintText:
+                                              AppLocalizations.of(context)!
+                                                  .confirmPassword,
+                                          clearErrors: clearErrors,
+                                        ),
                                         const SizedBox(height: 16.0),
                                         if (errorMessage != null &&
                                             errorMessage!.isNotEmpty)
@@ -121,19 +139,36 @@ class _RegisterPageState extends State<RegisterPage> {
                                         const SizedBox(height: 16.0),
                                         ElevatedButton(
                                           onPressed: () async {
-                                            if (_formKey.currentState!
-                                                .validate()) {
+                                            if (_emailController.text.isEmpty ||
+                                                _passwordController
+                                                    .text.isEmpty ||
+                                                _confirmPasswordController
+                                                    .text.isEmpty) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .fillTheFields),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            } else {
                                               if (_passwordController.text ==
                                                   _confirmPasswordController
                                                       .text) {
-                                                await createUserWithEmailAndPassword();
+                                                await createUserWithEmailAndPassword(
+                                                    context);
                                                 if (errorMessage == null) {
                                                   Navigator.pop(context);
                                                 }
                                               } else {
                                                 setState(() {
                                                   errorMessage =
-                                                      'Passwords do not match';
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .passwordDoNotMatch;
                                                 });
                                               }
                                             }
@@ -173,16 +208,18 @@ class _RegisterPageState extends State<RegisterPage> {
                                       Navigator.pop(context);
                                     },
                                     child: RichText(
-                                      text: const TextSpan(
-                                        text: 'Already have an account? ',
-                                        style: TextStyle(
+                                      text: TextSpan(
+                                        text: AppLocalizations.of(context)!
+                                            .alreadyHaveAccount,
+                                        style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.normal,
                                         ),
                                         children: [
                                           TextSpan(
-                                            text: 'Login!',
-                                            style: TextStyle(
+                                            text: AppLocalizations.of(context)!
+                                                .signIn,
+                                            style: const TextStyle(
                                               color: Colors.blue,
                                               fontWeight: FontWeight.bold,
                                             ),

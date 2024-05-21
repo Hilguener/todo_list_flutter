@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:todo_list/screens/login.dart';
-
-import '../auth.dart';
+import '../repository/auth_repository.dart';
 import '../screens/home.dart';
 
 class WidgetTree extends StatefulWidget {
@@ -15,7 +14,7 @@ class _WidgetTreeState extends State<WidgetTree> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: Auth().authStateChanges,
+      stream: AuthRepository().authStateChanges,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Home();

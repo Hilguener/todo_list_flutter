@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:todo_list/screens/register.dart';
 import 'package:todo_list/widgets/email_text_field.dart';
 import 'package:todo_list/widgets/password_text_field.dart';
 
 import '../constants/colors.dart';
+import '../repository/auth_repository.dart';
 import 'home.dart';
 import 'loading.dart';
 
@@ -22,6 +23,14 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  List<String> validationErrors = [];
+
+  void clearErrors() {
+    setState(() {
+      validationErrors.clear();
+    });
+  }
+
   Future<void> signInWithEmailAndPassword(BuildContext context) async {
     showDialog(
       context: context,
@@ -32,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     try {
-      await Auth().signInWithEmailAndPassword(
+      await AuthRepository().signInWithEmailAndPassword(
           email: _emailController.text, password: _passwordController.text);
       Navigator.pop(context);
       Navigator.pushReplacement(
@@ -86,9 +95,9 @@ class _LoginPageState extends State<LoginPage> {
                               child: Column(
                                 children: [
                                   const SizedBox(height: 40),
-                                  const Text(
-                                    'Welcome',
-                                    style: TextStyle(
+                                  Text(
+                                    AppLocalizations.of(context)!.welcome,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 30,
                                     ),
@@ -105,15 +114,33 @@ class _LoginPageState extends State<LoginPage> {
                                     key: _formKey,
                                     child: Column(
                                       children: [
-                                        emailTextField(_emailController),
+                                        emailTextField(context,
+                                            _emailController, clearErrors),
                                         const SizedBox(height: 16.0),
-                                        passwordTextField(
-                                            _passwordController, 'Password'),
+                                        PasswordTextField(
+                                          controller: _passwordController,
+                                          hintText:
+                                              AppLocalizations.of(context)!
+                                                  .password,
+                                          clearErrors: () {},
+                                        ),
                                         const SizedBox(height: 16.0),
                                         ElevatedButton(
                                           onPressed: () {
-                                            if (_formKey.currentState!
-                                                .validate()) {
+                                            if (_emailController.text.isEmpty ||
+                                                _passwordController
+                                                    .text.isEmpty) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .fillTheFields),
+                                                  backgroundColor: Colors.red,
+                                                ),
+                                              );
+                                            } else {
                                               signInWithEmailAndPassword(
                                                   context);
                                             }
@@ -126,10 +153,11 @@ class _LoginPageState extends State<LoginPage> {
                                                   BorderRadius.circular(8.0),
                                             ),
                                           ),
-                                          child: const Text(
-                                            'Login',
-                                            style:
-                                                TextStyle(color: Colors.white),
+                                          child: Text(
+                                            AppLocalizations.of(context)!
+                                                .signIn,
+                                            style: const TextStyle(
+                                                color: Colors.white),
                                           ),
                                         ),
                                       ],
@@ -158,16 +186,18 @@ class _LoginPageState extends State<LoginPage> {
                                       );
                                     },
                                     child: RichText(
-                                      text: const TextSpan(
-                                        text: 'Don\'t have an account? ',
-                                        style: TextStyle(
+                                      text: TextSpan(
+                                        text: AppLocalizations.of(context)!
+                                            .dontHaveAccount,
+                                        style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.normal,
                                         ),
                                         children: [
                                           TextSpan(
-                                            text: 'Sign Up!',
-                                            style: TextStyle(
+                                            text: AppLocalizations.of(context)!
+                                                .signUp,
+                                            style: const TextStyle(
                                               color: Colors.blue,
                                               fontWeight: FontWeight.bold,
                                             ),

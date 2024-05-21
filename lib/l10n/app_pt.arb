@@ -1,0 +1,19 @@
+{
+  "tasks": "Tarefas",
+  "addNewToDoItem": "Adicionar nova tarefa",
+  "search": "Pesquisar",
+  "logout": "Sair",
+  "welcome": "Bem-vindo",
+  "password": "Senha",
+  "dontHaveAccount": "Não tem uma conta? ",
+  "signUp": "Registre-se!",
+  "signIn": "Entrar",
+  "createAccount": "Criar conta",
+  "confirmPassword": "Confirmar senha",
+  "alreadyHaveAccount": "Já tem uma conta? ",
+  "passwordDoNotMatch": "As senhas não coincidem",
+  "pleaseEnterYourPassword": "Por favor, digite sua senha",
+  "pleaseEnterYourEmail": "Por favor, digite seu email",
+  "passwordMustBeAtLeast": "A senha deve ter pelo menos 6 caracteres",
+  "fillTheFields": "Por favor, preencha todos os campos."
+}

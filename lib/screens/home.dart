@@ -1,24 +1,44 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:todo_list/constants/colors.dart';
-import 'package:todo_list/model/todo.dart';
-import 'package:todo_list/widgets/todo_item.dart';
+import 'package:todo_list/model/task.dart';
+
+import '../repository/auth_repository.dart';
+import '../repository/task_repository.dart';
 import '../widgets/search_box.dart';
+import '../widgets/task_item.dart';
 import 'login.dart';
 
 class Home extends StatefulWidget {
   Home({super.key});
 
-  final User? user = Auth().currentUser;
+  final User? user = AuthRepository().currentUser;
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final todosList = ToDo.todoList();
+  List<Task> todosList = [];
   final _todoController = TextEditingController();
+  String _searchText = '';
+  final String? userId = AuthRepository().currentUser?.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    if (userId != null) {
+      _loadTasks();
+    }
+  }
+
+  Future<void> _loadTasks() async {
+    if (userId != null) {
+      todosList = await TaskRepository.instance.getTasks(userId!);
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +49,10 @@ class _HomeState extends State<Home> {
         centerTitle: false,
         title: Row(
           children: [
-            const Text('ToDo List'),
+            Text(
+              AppLocalizations.of(context)!.tasks,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const Spacer(),
             PopupMenuButton<String>(
               icon: const Icon(
@@ -38,14 +61,14 @@ class _HomeState extends State<Home> {
                 size: 30,
               ),
               onSelected: (String result) {
-                if (result == 'logout') {
+                if (result == AppLocalizations.of(context)!.logout) {
                   _signOut();
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Text('Logout'),
+                PopupMenuItem<String>(
+                  value: AppLocalizations.of(context)!.logout,
+                  child: Text(AppLocalizations.of(context)!.logout),
                 ),
               ],
             ),
@@ -57,19 +80,27 @@ class _HomeState extends State<Home> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: Column(
             children: [
-              searchBox(),
+              SearchBox(
+                onSearchTextChanged: (newText) {
+                  setState(() {
+                    _searchText = newText;
+                  });
+                },
+              ),
               Expanded(
                 child: ListView(
                   children: [
                     Container(
                       margin: const EdgeInsets.only(top: 50, bottom: 20),
                     ),
-                    for (ToDo todo in todosList)
-                      TodoItem(
-                        toDo: todo,
-                        onToDoChanged: _handleToDoChange,
-                        onDeleteItem: _deletedItem,
-                      )
+                    for (Task todo in todosList)
+                      if (_searchText.isEmpty ||
+                          todo.title.contains(_searchText))
+                        TaskItem(
+                          task: todo,
+                          onToDoChanged: _handleToDoChange,
+                          onDeleteItem: _deletedItem,
+                        ),
                   ],
                 ),
               ),
@@ -98,8 +129,8 @@ class _HomeState extends State<Home> {
                 ),
                 child: TextField(
                   controller: _todoController,
-                  decoration: const InputDecoration(
-                      hintText: 'Add a new todo item',
+                  decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.addNewToDoItem,
                       border: InputBorder.none),
                 ),
               )),
@@ -127,31 +158,51 @@ class _HomeState extends State<Home> {
   }
 
   void _signOut() async {
-    await Auth().signOut();
+    await AuthRepository().signOut();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
     );
   }
 
-  void _addTodoItem(String toDo) {
+  void _addTodoItem(String toDo) async {
+    if (toDo.isEmpty || userId == null) return;
+
+    final newTask = Task(
+      id: null,
+      title: toDo,
+    );
+
+    await TaskRepository.instance.createTask(userId!, newTask);
+
     setState(() {
-      todosList.add(ToDo(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          todoText: toDo));
+      todosList.add(newTask);
     });
+
     _todoController.clear();
   }
 
-  void _deletedItem(String id) {
-    setState(() {
-      todosList.removeWhere((item) => item.id == id);
-    });
+  void _deletedItem(String id) async {
+    if (userId == null) {
+      return;
+    }
+
+    try {
+      await TaskRepository.instance.deleteTask(userId!, id);
+
+      setState(() {
+        todosList.removeWhere((item) => item.id == id);
+      });
+    } catch (e) {}
   }
 
-  void _handleToDoChange(ToDo todo) {
+  void _handleToDoChange(Task task) async {
+    if (userId == null) return;
+
     setState(() {
-      todo.isDone = !todo.isDone;
+      task.isDone = !task.isDone;
     });
+
+    await TaskRepository.instance.updateTask(userId!, task);
   }
 }
